@@ -13,19 +13,30 @@ namespace prjDemo
             InitializeComponent();
         }
 
+        
         string[,] masField = new string[21*5, 11*5]; //Массив для всей карты
+        int[,] masObjects = new int[21*5, 11*5]; //Массив для объектов на карте
         string[,] masView = new string[21, 11]; // Массив для "камеры"
+
+
+        Color[] masTerColors = { Color.Blue, Color.Lime, Color.Yellow };
+        Image[] masObjImages = { 
+            Properties.Resources.emp,
+            Properties.Resources.tree,
+            Properties.Resources.rocks};
         int intEncounterChance = 1; //Шанс вступления в случайный бой
 
-        int currX = 32, currY = 41; // координата появления
+        int currX = 0, currY = 0; // координата появления
         Random r = new Random();
 
         private void Form1_Load(object sender, EventArgs e)
         {
             //Загрузка карты из файла
-            LoadMap("tr1.txt");
+            LoadMap("tr1.txt", "ob1.txt");
             
+            currX = 32; currY = 41;
             int prevX = currX, prevY = currY;
+
             RefreshView(ref currX, ref currY, prevX, prevY);
 
             ExploreMap(currX + 1, currY + 1);
@@ -96,6 +107,12 @@ namespace prjDemo
 
                         masView[x, y] = masField[frameX + x, frameY + y];
                         pic.BackColor = Color.FromName(masView[x, y]);
+
+                        if (!(x == 11 && y == 6))
+                        {
+                            pic.Image = masObjImages[masObjects[frameX + x, frameY + y]];
+                        }
+
                         bool bHorizontalBackground = masView[x, y] != masField[frameX + x, frameY + y + 1];
                         bool bVerticalBackground = masView[x, y] != masField[frameX + x + 1, frameY + y];
                         bool bDiagonalBackGround = masView[x, y] != masField[frameX + x + 1, frameY + y + 1];
@@ -210,12 +227,12 @@ namespace prjDemo
         }
 
         //Загрузка локации
-        void LoadMap(string strFileName)
+        void LoadMap(string strTerrainFileName, string strObjectsFileName)
         {
-            string s = File.ReadAllText(strFileName);
-            string[] masTerr = s.Split(' ');
+            string strT = File.ReadAllText(strTerrainFileName);
+            string[] masTerr = strT.Split(' ');
 
-            //Заполнение двумерного массива из одномерного
+            //Заполнение двумерного массива территории из одномерного
             for (int x = 0; x < 105; x++)
             {
                 for (int y = 0; y < 55; y++)
@@ -224,6 +241,20 @@ namespace prjDemo
                 }
             }
 
+            string strO = File.ReadAllText(strObjectsFileName);
+            string[] masObj = strO.Split(' ');
+
+            //Заполнение двумерного массива объектов из одномерного
+            for (int x = 0; x < 105; x++)
+            {
+                for (int y = 0; y < 55; y++)
+                {
+                    masObjects[x, y] = Convert.ToInt32(masObj[x + y * 105]);
+                }
+            }
+
+            masObjects[34, 44] = 1;
+            masObjects[35, 45] = 2;
             //Заполнение панели кнопками
             pnlView.Controls.Clear();
             for (int x = 0; x < 21; x++)
