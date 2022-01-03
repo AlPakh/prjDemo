@@ -129,7 +129,6 @@ namespace prjDemo
         {
             if (!processingRefresh)
             {
-
                 processingRefresh = true;
                 int prevX = currX, prevY = currY;
 
@@ -149,19 +148,25 @@ namespace prjDemo
                         break;
                 }
 
-                //this.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
+                if (masField[currX, currY] != "Blue")
+                {
+                    pnlView.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
 
-                EncounterCheck();
+                    EncounterCheck();
+                    Application.DoEvents();
 
-                ExploreMap(currX + 1, currY + 1);
-                //Application.DoEvents();
+                    ExploreMap(currX + 1, currY + 1);
 
-                //Thread.Sleep(100);
+                    Thread.Sleep(100);
 
-                RefreshView(ref currX, ref currY, prevX, prevY);
+                    RefreshView(ref currX, ref currY, prevX, prevY);
 
-                //this.Enabled = true; //Можно дальше нажимать кнопки
-
+                    pnlView.Enabled = true; //Можно дальше нажимать кнопки
+                }
+                else
+                {
+                    currX = prevX; currY = prevY;
+                }
             }
             processingRefresh = false;
         }
