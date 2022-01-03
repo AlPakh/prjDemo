@@ -23,52 +23,8 @@ namespace prjDemo
         private void Form1_Load(object sender, EventArgs e)
         {
             //Загрузка карты из файла
-            string s = File.ReadAllText("tr1.txt");
-            string[] masTerr = s.Split(' ');
-
-            //Заполнение карты
-            for(int x = 0; x < 105; x++)
-            {
-                for(int y = 0; y < 55; y++)
-                {
-                    masField[x, y] = masTerr[y + x*55];
-
-                    //PictureBox picCreate = new PictureBox();
-                    //picCreate.BackColor = Color.FromName(masField[x, y]);
-                    //picCreate.Size = new Size(3, 3);
-                    //picCreate.Name = $"picCreate{x}o{y}";
-                    //picCreate.Location = new Point(x * 3, y * 3);
-
-                    //pnlField.Controls.Add(picCreate);
-                }
-            }
-
-            //Заполнение панели кнопками
-            for (int x = 0; x < 21; x++)
-            {
-                for (int y = 0; y < 11; y++)
-                {
-                    PictureBox picCreate = new PictureBox();
-                    picCreate.BackColor = Color.White;
-                    picCreate.Size = new Size(40, 60);
-                    picCreate.Name = $"picCreate{x}o{y}";
-                    picCreate.Location = new Point(x * 40, y * 60);
-
-                    if (x == 11 && y == 6)
-                    {
-                        picCreate.Image = Properties.Resources.lul;
-                    }
-                    picCreate.SizeMode = PictureBoxSizeMode.Zoom;
-                    //else
-                    //{
-                    //    picCreate.Image = Properties.Resources.emp;
-                    //}
-
-
-                    pnlView.Controls.Add(picCreate);
-                }
-            }
-
+            LoadMap("tr1.txt");
+            
             int prevX = currX, prevY = currY;
             RefreshView(ref currX, ref currY, prevX, prevY);
 
@@ -295,6 +251,52 @@ namespace prjDemo
             }
 
 
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        //Загрузка локации
+        void LoadMap(string strFileName)
+        {
+            string s = File.ReadAllText(strFileName);
+            string[] masTerr = s.Split(' ');
+
+            //Заполнение двумерного массива из одномерного
+            for (int x = 0; x < 105; x++)
+            {
+                for (int y = 0; y < 55; y++)
+                {
+                    masField[x, y] = masTerr[y + x * 55];
+                }
+            }
+
+            //Заполнение панели кнопками
+            pnlView.Controls.Clear();
+            for (int x = 0; x < 21; x++)
+            {
+                for (int y = 0; y < 11; y++)
+                {
+                    PictureBox picCreate = new PictureBox();
+                    picCreate.BackColor = Color.White;
+                    picCreate.Size = new Size(40, 60);
+                    picCreate.Name = $"picCreate{x}o{y}";
+                    picCreate.Location = new Point(x * 40, y * 60);
+
+                    if (x == 11 && y == 6)
+                    {
+                        picCreate.Image = Properties.Resources.lul;
+                    }
+
+                    picCreate.SizeMode = PictureBoxSizeMode.Zoom;
+
+                    pnlView.Controls.Add(picCreate);
+                }
+            }
+
+            pnlField.Controls.Clear();
         }
     }
 }
