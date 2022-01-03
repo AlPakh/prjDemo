@@ -23,8 +23,8 @@ namespace prjDemo
         Image[] masObjImages = { 
             Properties.Resources.emp,
             Properties.Resources.tree,
-            Properties.Resources.rocks};
-        int intEncounterChance = 1; //Шанс вступления в случайный бой
+            Properties.Resources.rock};
+        int intEncounterChance = 1; //Шанс вступления в случайный бой (Должно работать при значениях 1-50 и 100)
 
         int currX = 0, currY = 0; // координата появления
         Random r = new Random();
@@ -66,7 +66,7 @@ namespace prjDemo
                         break;
                 }
 
-                if (masField[currX, currY] != "Blue")
+                if ((e.KeyCode == Keys.W || e.KeyCode == Keys.A || e.KeyCode == Keys.S || e.KeyCode == Keys.D) && (masField[currX+1, currY+1] != "Blue" && masObjects[currX+1, currY+1] != 1))
                 {
                     pnlView.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
 
@@ -103,22 +103,27 @@ namespace prjDemo
                     {
                         int intBackIndex = 0;
                         PictureBox pic = (PictureBox)pnlView.Controls[$"picCreate{x}o{y}"];
-                        pic.BackgroundImage = (Bitmap)Properties.Resources.emp;
+                        pic.BackgroundImage = Properties.Resources.emp;
 
                         masView[x, y] = masField[frameX + x, frameY + y];
                         pic.BackColor = Color.FromName(masView[x, y]);
 
-                        if (!(x == 11 && y == 6))
+                        if (!(x == 11 && y == 6) || masObjects[frameX + x, frameY + y] != 0)
                         {
                             pic.Image = masObjImages[masObjects[frameX + x, frameY + y]];
                         }
+                        else
+                        {
+                            pic.Image = Properties.Resources.lul;
+                        }
 
+                        //Проверка условий на добавление границ на изображение
                         bool bHorizontalBackground = masView[x, y] != masField[frameX + x, frameY + y + 1];
                         bool bVerticalBackground = masView[x, y] != masField[frameX + x + 1, frameY + y];
                         bool bDiagonalBackGround = masView[x, y] != masField[frameX + x + 1, frameY + y + 1];
                         bool bHorVertBackground = bVerticalBackground&&bHorizontalBackground;
 
-                        if (masView[x, y] != "Blue")
+                        if (masView[x, y] != "Blue") //Если клетка не синего цвета, нарисовать на ней границы
                         {
                             if (bHorVertBackground) { intBackIndex = 3; }
                             else if (bVerticalBackground) { intBackIndex = 2; }
@@ -229,32 +234,22 @@ namespace prjDemo
         //Загрузка локации
         void LoadMap(string strTerrainFileName, string strObjectsFileName)
         {
-            string strT = File.ReadAllText(strTerrainFileName);
+            string strT = File.ReadAllText(strTerrainFileName); //считать файл с цветами ячеек в одномерный массив
             string[] masTerr = strT.Split(' ');
 
-            //Заполнение двумерного массива территории из одномерного
-            for (int x = 0; x < 105; x++)
-            {
-                for (int y = 0; y < 55; y++)
-                {
-                    masField[x, y] = masTerr[x + y * 105];
-                }
-            }
-
-            string strO = File.ReadAllText(strObjectsFileName);
+            string strO = File.ReadAllText(strObjectsFileName); //считать файл с объектами ячеек в одномерный массив
             string[] masObj = strO.Split(' ');
 
-            //Заполнение двумерного массива объектов из одномерного
+            //Заполнение двумерных массивов из одномерных
             for (int x = 0; x < 105; x++)
             {
                 for (int y = 0; y < 55; y++)
                 {
-                    masObjects[x, y] = Convert.ToInt32(masObj[x + y * 105]);
+                    masField[x, y] = masTerr[x + y * 105]; //Заполнение массива территории
+                    masObjects[x, y] = Convert.ToInt32(masObj[x + y * 105]); //Заполнение массива объектов на карте
                 }
             }
 
-            masObjects[34, 44] = 1;
-            masObjects[35, 45] = 2;
             //Заполнение панели кнопками
             pnlView.Controls.Clear();
             for (int x = 0; x < 21; x++)
@@ -266,12 +261,6 @@ namespace prjDemo
                     picCreate.Size = new Size(40, 60);
                     picCreate.Name = $"picCreate{x}o{y}";
                     picCreate.Location = new Point(x * 40, y * 60);
-
-                    if (x == 11 && y == 6)
-                    {
-                        picCreate.Image = Properties.Resources.lul;
-                    }
-
                     picCreate.SizeMode = PictureBoxSizeMode.Zoom;
 
                     pnlView.Controls.Add(picCreate);
