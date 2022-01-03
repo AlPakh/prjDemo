@@ -58,6 +58,7 @@ namespace prjDemo
                     {
                         picCreate.Image = Properties.Resources.lul;
                     }
+                    picCreate.SizeMode = PictureBoxSizeMode.Zoom;
                     //else
                     //{
                     //    picCreate.Image = Properties.Resources.emp;
@@ -148,7 +149,7 @@ namespace prjDemo
                         break;
                 }
 
-                this.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
+                //this.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
 
                 EncounterCheck();
 
@@ -159,7 +160,7 @@ namespace prjDemo
 
                 RefreshView(ref currX, ref currY, prevX, prevY);
 
-                this.Enabled = true; //Можно дальше нажимать кнопки
+                //this.Enabled = true; //Можно дальше нажимать кнопки
 
             }
             processingRefresh = false;
@@ -177,10 +178,26 @@ namespace prjDemo
                 {
                     for (int y = 0; y < 11; y++)
                     {
+                        int intBackIndex = 0;
                         PictureBox pic = (PictureBox)pnlView.Controls[$"picCreate{x}o{y}"];
+                        pic.BackgroundImage = (Bitmap)Properties.Resources.emp;
 
                         masView[x, y] = masField[frameX + x, frameY + y];
                         pic.BackColor = Color.FromName(masView[x, y]);
+                        bool bHorizontalBackground = masView[x, y] != masField[frameX + x, frameY + y + 1];
+                        bool bVerticalBackground = masView[x, y] != masField[frameX + x + 1, frameY + y];
+                        bool bDiagonalBackGround = masView[x, y] != masField[frameX + x + 1, frameY + y + 1];
+                        bool bHorVertBackground = bVerticalBackground&&bHorizontalBackground;
+
+                        if (masView[x, y] != "Blue")
+                        {
+                            if (bHorVertBackground) { intBackIndex = 3; }
+                            else if (bVerticalBackground) { intBackIndex = 2; }
+                            else if (bHorizontalBackground && !bVerticalBackground) { intBackIndex = 1; }
+                            else if (bDiagonalBackGround && !bHorizontalBackground && !bVerticalBackground) { intBackIndex = 4; }
+
+                            pic.BackgroundImage = (Bitmap)Properties.Resources.ResourceManager.GetObject("back" + intBackIndex.ToString());
+                        }
                     }
                 }
             }
