@@ -30,10 +30,6 @@ namespace prjDemo
         private void InitializeComponent()
         {
             this.pnlView = new System.Windows.Forms.Panel();
-            this.pnlMakeMap = new System.Windows.Forms.Panel();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.btnSaveMap = new System.Windows.Forms.Button();
             this.pnlField = new System.Windows.Forms.Panel();
             this.txtMessage = new System.Windows.Forms.TextBox();
             this.btnExit = new System.Windows.Forms.Button();
@@ -48,49 +44,6 @@ namespace prjDemo
             this.pnlView.Name = "pnlView";
             this.pnlView.Size = new System.Drawing.Size(1121, 814);
             this.pnlView.TabIndex = 1;
-            // 
-            // pnlMakeMap
-            // 
-            this.pnlMakeMap.Location = new System.Drawing.Point(16, 68);
-            this.pnlMakeMap.Margin = new System.Windows.Forms.Padding(4);
-            this.pnlMakeMap.Name = "pnlMakeMap";
-            this.pnlMakeMap.Size = new System.Drawing.Size(840, 406);
-            this.pnlMakeMap.TabIndex = 3;
-            this.pnlMakeMap.Visible = false;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(16, 523);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(132, 22);
-            this.textBox1.TabIndex = 4;
-            this.textBox1.Visible = false;
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(16, 555);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(137, 21);
-            this.checkBox1.TabIndex = 5;
-            this.checkBox1.Text = "fill on mouseover";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.Visible = false;
-            // 
-            // btnSaveMap
-            // 
-            this.btnSaveMap.Location = new System.Drawing.Point(1140, 271);
-            this.btnSaveMap.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSaveMap.Name = "btnSaveMap";
-            this.btnSaveMap.Size = new System.Drawing.Size(208, 76);
-            this.btnSaveMap.TabIndex = 6;
-            this.btnSaveMap.Text = "Save map to file";
-            this.btnSaveMap.UseVisualStyleBackColor = true;
-            this.btnSaveMap.Visible = false;
-            this.btnSaveMap.Click += new System.EventHandler(this.btnSaveMap_Click);
             // 
             // pnlField
             // 
@@ -114,6 +67,7 @@ namespace prjDemo
             // 
             // btnExit
             // 
+            this.btnExit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.btnExit.Location = new System.Drawing.Point(1140, 773);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(390, 60);
@@ -132,10 +86,6 @@ namespace prjDemo
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.txtMessage);
             this.Controls.Add(this.pnlField);
-            this.Controls.Add(this.btnSaveMap);
-            this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.pnlMakeMap);
             this.Controls.Add(this.pnlView);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.KeyPreview = true;
@@ -151,10 +101,6 @@ namespace prjDemo
 
         #endregion
         private System.Windows.Forms.Panel pnlView;
-        private System.Windows.Forms.Panel pnlMakeMap;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Button btnSaveMap;
         private System.Windows.Forms.Panel pnlField;
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.Button btnExit;

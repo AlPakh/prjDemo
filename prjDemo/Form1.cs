@@ -31,55 +31,6 @@ namespace prjDemo
             ExploreMap(currX + 1, currY + 1);
         }
 
-        private void PicCreate_MouseHover(object sender, EventArgs e)
-        {
-            PictureBox pic = (PictureBox)sender;
-            textBox1.Text = pic.Name;
-            if (checkBox1.Checked)
-            {
-                if (pic.BackColor == Color.Blue)
-                {
-                    pic.BackColor = Color.Lime;
-                }
-                else if (pic.BackColor == Color.Lime)
-                {
-                    pic.BackColor = Color.Yellow;
-                }
-                else
-                {
-                    pic.BackColor = Color.Blue;
-                }
-            }
-        }
-
-        private void PicCreate_MouseDown(object sender, MouseEventArgs e)
-        {
-            PictureBox pic = (PictureBox)sender;
-            if(pic.BackColor == Color.Blue)
-            {
-                pic.BackColor = Color.Lime;
-            }
-            else if (pic.BackColor == Color.Lime)
-            {
-                pic.BackColor = Color.Yellow;
-            }
-            else
-            {
-                pic.BackColor = Color.Blue;
-            }
-        }
-
-        private void btnSaveMap_Click(object sender, EventArgs e)
-        {
-            string masColors = ""; 
-            foreach(PictureBox pic in pnlMakeMap.Controls)
-            {
-                masColors += pic.BackColor.Name + " ";
-            }
-            File.WriteAllText("terrain1.txt", masColors);
-        }
-
-
         bool processingRefresh = false;
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -269,7 +220,7 @@ namespace prjDemo
             {
                 for (int y = 0; y < 55; y++)
                 {
-                    masField[x, y] = masTerr[y + x * 55];
+                    masField[x, y] = masTerr[x + y * 105];
                 }
             }
 
