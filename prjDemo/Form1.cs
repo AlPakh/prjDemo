@@ -14,9 +14,9 @@ namespace prjDemo
         }
 
         
-        string[,] masField = new string[21*5, 11*5]; //Массив для всей карты
+        int[,] masField = new int[21*5, 11*5]; //Массив для всей карты
         int[,] masObjects = new int[21*5, 11*5]; //Массив для объектов на карте
-        string[,] masView = new string[21, 11]; // Массив для "камеры"
+        int[,] masView = new int[21, 11]; // Массив для "камеры"
 
 
         Color[] masTerColors = { Color.Blue, Color.Lime, Color.Yellow };
@@ -32,7 +32,7 @@ namespace prjDemo
         private void Form1_Load(object sender, EventArgs e)
         {
             //Загрузка карты из файла
-            LoadMap("tr1.txt", "ob1.txt");
+            LoadMap("ter1.txt", "ob1.txt");
             
             currX = 32; currY = 41;
             int prevX = currX, prevY = currY;
@@ -66,7 +66,7 @@ namespace prjDemo
                         break;
                 }
 
-                if ((e.KeyCode == Keys.W || e.KeyCode == Keys.A || e.KeyCode == Keys.S || e.KeyCode == Keys.D) && (masField[currX+1, currY+1] != "Blue" && masObjects[currX+1, currY+1] != 1))
+                if ((e.KeyCode == Keys.W || e.KeyCode == Keys.A || e.KeyCode == Keys.S || e.KeyCode == Keys.D) && (masField[currX+1, currY+1] != 0 && masObjects[currX+1, currY+1] != 1))
                 {
                     pnlView.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
 
@@ -95,7 +95,7 @@ namespace prjDemo
             int frameX = currX - 10, frameY = currY - 5;
             
             //Если клетка, на которую надо наступить - не синего цвета, заполнить массив для masView для "камеры" и перерисовать PicturBbox
-            if (masField[currX + 1, currY + 1] != "Blue")
+            if (masField[currX + 1, currY + 1] != 0)
             {
                 for (int x = 0; x < 21; x++)
                 {
@@ -106,8 +106,9 @@ namespace prjDemo
                         pic.BackgroundImage = Properties.Resources.emp;
 
                         masView[x, y] = masField[frameX + x, frameY + y];
-                        pic.BackColor = Color.FromName(masView[x, y]);
+                        pic.BackColor = masTerColors[masView[x, y]];
 
+                        //Загрузить изображение объекта
                         if (!(x == 11 && y == 6) || masObjects[frameX + x, frameY + y] != 0)
                         {
                             pic.Image = masObjImages[masObjects[frameX + x, frameY + y]];
@@ -123,7 +124,7 @@ namespace prjDemo
                         bool bDiagonalBackGround = masView[x, y] != masField[frameX + x + 1, frameY + y + 1];
                         bool bHorVertBackground = bVerticalBackground&&bHorizontalBackground;
 
-                        if (masView[x, y] != "Blue") //Если клетка не синего цвета, нарисовать на ней границы
+                        if (masView[x, y] != 0) //Если клетка не синего цвета, нарисовать на ней границы
                         {
                             if (bHorVertBackground) { intBackIndex = 3; }
                             else if (bVerticalBackground) { intBackIndex = 2; }
@@ -169,21 +170,8 @@ namespace prjDemo
                 "Враг явил себя. "
             };
 
-            //Какую строку из массива применить для поверхности
-            switch (masField[currX + 1, currY + 1])
-            {
-                case "Blue":
-                    indTerrain = 0;
-                    break;
-
-                case "Yellow":
-                    indTerrain = 1;
-                    break;
-
-                default:
-                    indTerrain = 2;
-                    break;
-            }
+            //Какую строку из массива применить для описания поверхности
+            indTerrain = masField[currX + 1, currY + 1];
 
             if (randomEncounter != 0)
             {
@@ -213,7 +201,7 @@ namespace prjDemo
                     if (iu == 0)
                     {
                         PictureBox picCreate = new PictureBox();
-                        picCreate.BackColor = Color.FromName(masField[j, i]);
+                        picCreate.BackColor = masTerColors[masField[j, i]];
                         picCreate.Size = new Size(3, 3);
                         picCreate.Name = picName;
                         picCreate.Location = new Point(j * 3, i * 3);
@@ -245,7 +233,7 @@ namespace prjDemo
             {
                 for (int y = 0; y < 55; y++)
                 {
-                    masField[x, y] = masTerr[x + y * 105]; //Заполнение массива территории
+                    masField[x, y] = Convert.ToInt32(masTerr[x + y * 105]); //Заполнение массива территории
                     masObjects[x, y] = Convert.ToInt32(masObj[x + y * 105]); //Заполнение массива объектов на карте
                 }
             }
