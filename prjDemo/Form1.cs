@@ -17,78 +17,95 @@ namespace prjDemo
         int[,] masField = new int[21*5, 11*5]; //Массив для всей карты
         int[,] masObjects = new int[21*5, 11*5]; //Массив для объектов на карте
         int[,] masView = new int[21, 11]; // Массив для "камеры"
+        string[,] strMaps = 
+        { 
+            {"ter1.txt", "ob1.txt"},
+            {"ter2.txt", "ob1.txt"} 
+        };
 
 
         Color[] masTerColors = { Color.Blue, Color.Lime, Color.Yellow };
         Image[] masObjImages = { 
             Properties.Resources.emp,
             Properties.Resources.tree,
-            Properties.Resources.rock};
+            Properties.Resources.rock,
+            Properties.Resources.tele
+        };
         int intEncounterChance = 1; //Шанс вступления в случайный бой (Должно работать при значениях 1-50 и 100)
 
         int currX = 0, currY = 0; // координата появления
+        string strCurrentMap = "";
+
         Random r = new Random();
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Загрузка карты из файла
-            LoadMap("ter1.txt", "ob1.txt");
-            
             currX = 32; currY = 41;
             int prevX = currX, prevY = currY;
+
+            LoadMap(strMaps[0, 0], strMaps[0, 1]);             //Загрузка карты из файла
 
             RefreshView(ref currX, ref currY, prevX, prevY);
 
             ExploreMap(currX + 1, currY + 1);
         }
 
-        bool processingRefresh = false;
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        private void btnExit_Click(object sender, EventArgs e)
         {
-            if (!processingRefresh)
-            {
-                processingRefresh = true;
-                int prevX = currX, prevY = currY;
-
-                switch (e.KeyCode)
-                {
-                    case Keys.W:
-                        currY--;
-                        break;
-                    case Keys.A:
-                        currX--;
-                        break;
-                    case Keys.D:
-                        currX++;
-                        break;
-                    case Keys.S:
-                        currY++;
-                        break;
-                }
-
-                if ((e.KeyCode == Keys.W || e.KeyCode == Keys.A || e.KeyCode == Keys.S || e.KeyCode == Keys.D) && (masField[currX+1, currY+1] != 0 && masObjects[currX+1, currY+1] != 1))
-                {
-                    pnlView.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
-
-                    EncounterCheck();
-                    Application.DoEvents();
-
-                    ExploreMap(currX + 1, currY + 1);
-
-                    Thread.Sleep(100);
-
-                    RefreshView(ref currX, ref currY, prevX, prevY);
-
-                    pnlView.Enabled = true; //Можно дальше нажимать кнопки
-                }
-                else
-                {
-                    currX = prevX; currY = prevY;
-                }
-            }
-            processingRefresh = false;
+            Application.Exit();
         }
 
+        private void btnGetData_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(currX + " " + currY + " " + intEncounterChance);
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            int prevX = currX, prevY = currY;
+
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    currY--;
+                    break;
+                case Keys.A:
+                    currX--;
+                    break;
+                case Keys.D:
+                    currX++;
+                    break;
+                case Keys.S:
+                    currY++;
+                    break;
+            }
+
+            if ((e.KeyCode == Keys.W || e.KeyCode == Keys.A || e.KeyCode == Keys.S || e.KeyCode == Keys.D) &&       // Кнопки передвижения
+                masField[currX + 1, currY + 1] != 0 &&                                                              // Цвет клетки - не синий
+                masObjects[currX + 1, currY + 1] != 1 && masObjects[currX + 1, currY + 1] != 2)                     // Клетка не занята объектом
+            {
+                pnlView.Enabled = false; //Запрет на обработку нажатий, пока не будут выполнены все подпрограммы
+
+                ExploreMap(currX + 1, currY + 1);
+
+                RefreshView(ref currX, ref currY, prevX, prevY);
+
+                TriggerLogic(ref currX, ref currY, strCurrentMap);
+
+                EncounterCheck();
+
+                pnlView.Enabled = true; //Можно дальше нажимать кнопки
+            }
+            else
+            {
+                currX = prevX; currY = prevY;
+            }
+
+        }
+
+        
+
+        //Обновить ячейки
         void RefreshView(ref int currX, ref int currY, int prevX, int prevY)
         {
             //Координаты "Нулевой клетки" массива камеры относительно всей карты
@@ -104,24 +121,15 @@ namespace prjDemo
                         int intBackIndex = 0;
                         PictureBox pic = (PictureBox)pnlView.Controls[$"picCreate{x}o{y}"];
                         pic.BackgroundImage = Properties.Resources.emp;
+                        pic.Image = null;
 
-                        masView[x, y] = masField[frameX + x, frameY + y];
+                        masView[x, y] = masField[frameX + x + 1, frameY + y + 1];
                         pic.BackColor = masTerColors[masView[x, y]];
 
-                        //Загрузить изображение объекта
-                        if (!(x == 11 && y == 6) || masObjects[frameX + x, frameY + y] != 0)
-                        {
-                            pic.Image = masObjImages[masObjects[frameX + x, frameY + y]];
-                        }
-                        else
-                        {
-                            pic.Image = Properties.Resources.lul;
-                        }
-
                         //Проверка условий на добавление границ на изображение
-                        bool bHorizontalBackground = masView[x, y] != masField[frameX + x, frameY + y + 1];
-                        bool bVerticalBackground = masView[x, y] != masField[frameX + x + 1, frameY + y];
-                        bool bDiagonalBackGround = masView[x, y] != masField[frameX + x + 1, frameY + y + 1];
+                        bool bHorizontalBackground = masView[x, y] != masField[frameX + x + 1, frameY + y + 2];
+                        bool bVerticalBackground = masView[x, y] != masField[frameX + x + 2, frameY + y+ 1];
+                        bool bDiagonalBackGround = masView[x, y] != masField[frameX + x + 2, frameY + y + 2];
                         bool bHorVertBackground = bVerticalBackground&&bHorizontalBackground;
 
                         if (masView[x, y] != 0) //Если клетка не синего цвета, нарисовать на ней границы
@@ -132,7 +140,17 @@ namespace prjDemo
                             else if (bDiagonalBackGround && !bHorizontalBackground && !bVerticalBackground) { intBackIndex = 4; }
 
                             pic.BackgroundImage = (Bitmap)Properties.Resources.ResourceManager.GetObject("back" + intBackIndex.ToString());
+
+
+                            //Если не надо рисовать границы, загрузить изображение объекта
+                            if (masObjects[frameX + x + 1, frameY + y + 1] != 0 && intBackIndex == 0)
+                            {
+                                pic.BackgroundImage = masObjImages[masObjects[frameX + x + 1, frameY + y + 1]];
+                            }
+
                         }
+
+                        if (x == 10 && y == 5) pic.Image = Properties.Resources.lul;
                     }
                 }
             }
@@ -144,7 +162,8 @@ namespace prjDemo
 
         }
 
-        public void EncounterCheck()
+        //Вычисление шанса вступить в случайный бой
+        void EncounterCheck()
         {
             int calcChance = 100/intEncounterChance;
             int randomEncounter = r.Next( calcChance );
@@ -173,7 +192,7 @@ namespace prjDemo
             //Какую строку из массива применить для описания поверхности
             indTerrain = masField[currX + 1, currY + 1];
 
-            if (randomEncounter != 0)
+            if (randomEncounter != 0) //Encounter failed
             {
                 indEncounter = r.Next(3, 12);
             }
@@ -191,9 +210,9 @@ namespace prjDemo
         //Добавление на карту пройденных локаций
         void ExploreMap(int x, int y)
         {
-            for(int i = y-6; i < y+5; i++)
+            for(int i = y-5; i < y+4; i++)
             {
-                for(int j = x - 11; j < x + 10; j++)
+                for(int j = x - 10; j < x + 9; j++)
                 {
                     string picName = $"picCreate{j}o{i}";
                     
@@ -214,14 +233,10 @@ namespace prjDemo
 
         }
 
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
-
         //Загрузка локации
         void LoadMap(string strTerrainFileName, string strObjectsFileName)
         {
+            strCurrentMap = strTerrainFileName;
             string strT = File.ReadAllText(strTerrainFileName); //считать файл с цветами ячеек в одномерный массив
             string[] masTerr = strT.Split(' ');
 
@@ -256,6 +271,25 @@ namespace prjDemo
             }
 
             pnlField.Controls.Clear();
+        }
+
+        //Триггеры
+        void TriggerLogic(ref int currX, ref int currY, string strCurrentMap)
+        {
+            if (currX == 75 && currY == 14 && strCurrentMap == strMaps[0, 0]) //Переход на уровень 2
+            {
+                DialogResult dr = MessageBox.Show("Переход?", "", MessageBoxButtons.YesNo);
+                if (dr == DialogResult.Yes)
+                {
+                    //Загрузка карты из файла
+                    LoadMap(strMaps[1, 0], strMaps[1, 1]);
+                    currX = 18; currY = 26;
+
+                    RefreshView(ref currX, ref currY, currX, currY);
+
+                    ExploreMap(currX, currY);
+                }
+            }
         }
     }
 }
